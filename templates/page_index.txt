@@ -2,12 +2,25 @@
 
 <div class="container">
 
+	<h1>WoW Battle Pet Data</h1>
+
+	<p>This site presents level, quality and secondary pet data for World of Warcraft battle pets.
+		All data is collected via <a href="http://www.curse.com/addons/wow/battledex">Battledex</a>.</p>
+
+	<p>If you've ever wondered what the chances of finding a rare level 25 Shore Crab are, we can answer that.</p>
+
 <table class="table" style="width: auto">
+	<tr>
+		<th>&nbsp;</td>
+		<th colspan="2">Pet</td>
+		<th>Times Seen</td>
+	</tr>
 {foreach from=$pets item='row'}
 	<tr>
-		<td>{$row.species_id}</td>
+		<td>#{$row.species_id}</td>
+		<td><a href="./{$row.url}"><img src="http://cdn.warcraftpets.com/images/pets/small/{$row.image}" width="20" height="20"></a></td>
 		<td><a href="./{$row.url}">{$row.name}</a></td>
-		<td>{$row.total_seen|intval}</td>
+		<td style="text-align: right">{$row.total_seen|intval}</td>
 	</tr>
 {/foreach}
 </table>

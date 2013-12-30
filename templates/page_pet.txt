@@ -2,6 +2,10 @@
 
 <style>{literal}
 
+h2 {
+	margin-top: 30px;
+}
+
 .qualitybar {
 	background-color: #000;
 	padding: 1px;
@@ -21,10 +25,14 @@
 
 <div class="container">
 
-	<h1>{$pet.name}</h1>
+	<h1>
+		<img src="http://cdn.warcraftpets.com/images/pets/small/{$pet.image}" width="40" height="40">
+		{$pet.name}
+	</h1>
 
 	<p>Total times seen: {$stats.total_seen}</p>
 
+	<p><a href="http://www.warcraftpets.com/wow-pets/-/-/{$pet.url}/">View on Wrcraft pets</a></p>
 
 
 	<h2>Quality</h2>
@@ -35,12 +43,12 @@
 		<div class="qual1" style="width: {$stats.qual_all.frac_1}%"></div><div class="qual2" style="width: {$stats.qual_all.frac_2}%"></div><div class="qual3" style="width: {$stats.qual_all.frac_3}%"></div><div class="qual4" style="width: {$stats.qual_all.frac_4}%"></div>
 	</div>
 
-	<p>Quality distribution by level:</p>
+	<p style="margin-top: 2em">Quality distribution by level:</p>
 
 <table>
 {foreach from=$stats.qual_level item='data'}
 	<tr>
-		<td>{$data.level}</td>
+		<td>lvl {$data.level} &nbsp;&nbsp; </td>
 		<td>
 		<div class="qualitybar" style="width: 300px; height: 20px;">
 			<div class="qual1" style="width: {$data.frac_1}%"></div><div class="qual2" style="width: {$data.frac_2}%"></div><div class="qual3" style="width: {$data.frac_3}%"></div><div class="qual4" style="width: {$data.frac_4}%"></div>
@@ -59,20 +67,21 @@
 <table>
 {foreach from=$stats.levels_all.levels item='row'}
 	<tr>
-		<td>{$row.level}</td>
+		<td style="padding-right: 8px; text-align: right">{$row.level}</td>
 		<td><div style="width: {$row.w}px; height: 20px; background-color: #666"></div></td>
-		<td>{$row.num}</td>
-		<td>{$row.per}%</td>
+		<td style="padding-right: 16px; padding-left: 8px; text-align: right">{$row.num}</td>
+		<td style="text-align: right">{$row.per}%</td>
 	</tr>
 {/foreach}
 </table>
 
-	<p>By Primary Pet:</p>
+	<p style="margin-top: 2em">Level distribution by Primary Pet:</p>
 
 <table>
 {foreach from=$stats.levels_primary item='prow'}
 	<tr>
 		<td colspan="4" style="padding-top: 1em">
+			<img src="http://cdn.warcraftpets.com/images/pets/small/{$prow.pet.image}" width="20" height="20">
 {if $prow.is_main}
 			{$prow.pet.name|escape} (Primary)
 {elseif $prow.pet.id==$pet.id}
@@ -84,10 +93,10 @@
 	</tr>
 {foreach from=$prow.levels item='row'}
 	<tr>
-		<td>{$row.level}</td>
+		<td style="padding-right: 8px; text-align: right">{$row.level}</td>
 		<td><div style="width: {$row.w}px; height: 20px; background-color: #666"></div></td>
-		<td>{$row.num}</td>
-		<td>{$row.per}%</td>
+		<td style="padding-right: 16px; padding-left: 8px; text-align: right">{$row.num}</td>
+		<td style="text-align: right">{$row.per}%</td>
 	</tr>
 {/foreach}
 {/foreach}
@@ -98,21 +107,22 @@
 
 <p>The following pets have been seen as a secondary when fighting a wild {$pet.name}.</p>
 
-<table>
+<table class="table" style="width: auto">
 	<tr>
-		<th>Pet</th>
+		<th colspan="2">Pet</th>
 		<th>Count</th>
 		<th>Levels</th>
 	</tr>
 {foreach from=$stats.seconds item='row'}
 	<tr>
+		<td><img src="http://cdn.warcraftpets.com/images/pets/small/{$row.image}" width="20" height="20"></td>
 {if $row.id==$pet.id}
 		<td>{$row.name|escape}</td>
 {else}
 		<td><a href="./{$row.url}">{$row.name|escape}</a>
 {/if}
-		<td>{$row.num}</td>
-		<td>{$row.simple_levels}</td>
+		<td style="text-align: right">{$row.num}</td>
+		<td style="text-align: right">{$row.simple_levels}</td>
 	</tr>
 {/foreach}
 </table>

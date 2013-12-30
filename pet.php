@@ -189,59 +189,7 @@
 
 		$out['seconds'][] = $spet;
 	}
-	
 
-
-
-echo "Total times seen: {$stats['total_seen']}<br>\n";
-
-echo "Total quality distribution: ".local_qualities($stats['qualities'])."<br>\n";
-echo "Quality distribution by level:<br>\n";
-foreach ($stats['qualities_by_level'] as $level => $quals){
-	echo "$level: ".local_qualities($quals)."<br>\n";
-}
-
-echo "All levels: ".local_levels($stats['levels'])."<br>\n";
-
-echo "Levels by Primary:<br>\n";
-foreach ($stats['levels_by_primary'] as $primary_id => $levels){
-	$primary = $primary_id ? $pets[$primary_id] : $pet;
-	echo "{$primary['name']}: ".local_levels($levels)."<br>\n";
-}
-echo "<br>";
-
-echo "Secondaries:<br>\n";
-foreach ($rstats['all'] as $k => $v){
-	$pet = $pets[$k];
-	echo "{$pet['name']}: $v<br>\n";
-}
-
-
-function local_levels($data){
-	ksort($data);
-	$bits = array();
-	foreach ($data as $k => $v) $bits[] = "$k: $v";
-	return implode(', ', $bits);
-}
-
-function local_qualities($a){
-	$total = $a[1] + $a[2] + $a[3] + $a[4];
-	$q1 = intval($a[1]).' - '.round(100 * $a[1] / $total).'%';
-	$q2 = intval($a[2]).' - '.round(100 * $a[2] / $total).'%';
-	$q3 = intval($a[3]).' - '.round(100 * $a[3] / $total).'%';
-	$q4 = intval($a[4]).' - '.round(100 * $a[4] / $total).'%';
-	return "$q1 | $q2 | $q3 | $q4";
-}
-
-
-#array (
-#  'source' => 'iamcal.lua',
-#  'pet_id' => '378',
-#  'battle_pet_id' => '0',
-#  'level' => '7',
-#  'quality' => '3',
-#  'count' => '1',
-#)
 
 	#
 	# output
