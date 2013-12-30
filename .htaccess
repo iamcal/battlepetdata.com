@@ -11,7 +11,8 @@ php_flag display_errors on
 php_value error_reporting 2147483639
 
 DirectoryIndex index.php
-ErrorDocument 404 /dex/404.php
+ErrorDocument 404 /404.php
 
 RewriteEngine on
+RewriteRule ^submit$	submit.php	[L]
 RewriteRule ^([^/.]+)$	pet.php?id=$1	[L,QSA]
