@@ -23,6 +23,8 @@
 		'total_seen' => 0,
 		'qualities' => array(),
 		'qualities_by_level' => array(),
+		'seconds_to' => array(),
+		'seconds_to_levels' => array(),
 	);
 
 	$ret = db_fetch("SELECT * FROM pets WHERE pet_id={$pet['species_id']}");
@@ -36,6 +38,11 @@
 		$stats['qualities_by_level'][$row['level']][$row['quality']] += $row['count'];
 		$stats['levels'][$row['level']] += $row['count'];
 		$stats['levels_by_primary'][$row['battle_pet_id']][$row['level']] += $row['count'];
+
+		if ($row['battle_pet_id']){
+			$stats['seconds_to'][$row['battle_pet_id']] += $row['count'];
+			$stats['seconds_to_levels'][$row['battle_pet_id']][$row['level']] += $row['count'];
+		}
 
 		$pet_ids[$row['battle_pet_id']] = 1;
 	}
@@ -198,6 +205,28 @@
 		}
 
 		$out['seconds'][] = $spet;
+	}
+
+
+	$out['seconds_to'] = array();
+	foreach ($stats['seconds_to'] as $k => $v){
+		$spet = $pets[$k];
+
+		$spet['num'] = $v;
+		$spet['levels'] = array();
+
+		ksort($stats['seconds_to_levels'][$k]);
+
+		$spet['simple_levels'] = implode(', ', array_keys($stats['seconds_to_levels'][$k]));
+
+		foreach ($stats['seconds_to_levels'][$k] as $lvl => $num){
+			$spet['levels'] = array(
+				'level' => $lvl,
+				'num' => $num,
+			);
+		}
+
+		$out['seconds_to'][] = $spet;
 	}
 
 
