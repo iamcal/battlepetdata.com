@@ -17,6 +17,8 @@
 	# get stats
 	#
 
+	$pet_ids = array();
+
 	$stats = array(
 		'total_seen' => 0,
 		'qualities' => array(),
@@ -37,9 +39,6 @@
 
 		$pet_ids[$row['battle_pet_id']] = 1;
 	}
-
-	ksort($stats['qualities_by_level']);
-	ksort($stats['levels']);
 
 
 	#
@@ -68,11 +67,14 @@
 
 	$pets = array();
 
-	$ids = implode(',', array_keys($pet_ids));
-	$ret = db_fetch("SELECT * FROM warcraftpets.pets WHERE species_id IN ($ids)");
-	foreach ($ret['rows'] as $row){
+	if (count($pet_ids)){
 
-		$pets[$row['species_id']] = $row;
+		$ids = implode(',', array_keys($pet_ids));
+		$ret = db_fetch("SELECT * FROM warcraftpets.pets WHERE species_id IN ($ids)");
+		foreach ($ret['rows'] as $row){
+
+			$pets[$row['species_id']] = $row;
+		}
 	}
 
 
@@ -86,6 +88,12 @@
 
 	$out['total_seen'] = $stats['total_seen'];
 
+	if (!$stats['total_seen']){
+
+		$smarty->display('page_pet_notseen.txt');
+		exit;
+	}
+
 
 	#
 	# qualities
@@ -94,6 +102,8 @@
 	$out['qual_all'] = local_prep_quals($stats['qualities']);
 
 	$out['qual_level'] = array();
+
+	ksort($stats['qualities_by_level']);
 	foreach ($stats['qualities_by_level'] as $level => $quals){
 		$data = local_prep_quals($quals);
 		$data['level'] = $level;

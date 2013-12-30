@@ -32,7 +32,7 @@ h2 {
 
 	<p>Total times seen: {$stats.total_seen}</p>
 
-	<p><a href="http://www.warcraftpets.com/wow-pets/-/-/{$pet.url}/">View on Wrcraft pets</a></p>
+	<p><a href="http://www.warcraftpets.com/wow-pets/-/-/{$pet.url}/">View on Warcraft Pets</a></p>
 
 
 	<h2>Quality</h2>
