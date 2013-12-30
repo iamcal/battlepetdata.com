@@ -1,0 +1,17 @@
+{include file='inc_head.txt' nav_tab='home'}
+
+<div class="container">
+
+<table class="table" style="width: auto">
+{foreach from=$pets item='row'}
+	<tr>
+		<td>{$row.species_id}</td>
+		<td><a href="./{$row.url}">{$row.name}</a></td>
+		<td>{$row.total_seen|intval}</td>
+	</tr>
+{/foreach}
+</table>
+
+</div>
+
+{include file='inc_foot.txt'}
