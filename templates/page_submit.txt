@@ -1,0 +1,17 @@
+{include file='inc_head.txt' nav_tab='home'}
+
+<div class="container">
+
+	<h1>Submit Your Data</h1>
+
+	<p>You need to use <a href="http://www.curse.com/addons/wow/battledex">Battledex</a> to collect battle data.</p>
+
+	<p>Once you've collected some data, exit WoW and find this file:</p>
+{literal}
+	<p><code>C:\World of Warcraft\WTF\Account\{YOUR-ACCOUNT}\SavedVariables\BattleDex.lua</code></p>
+{/literal}
+	<p>Email this file to <a href="mailto:cal@battlepetdata.com">cal@battlepetdata.com</a> and it'll be added to the index.</p>
+
+</div>
+
+{include file='inc_foot.txt'}

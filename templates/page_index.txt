@@ -4,10 +4,15 @@
 
 	<h1>WoW Battle Pet Data</h1>
 
-	<p>This site presents level, quality and secondary pet data for World of Warcraft battle pets.
-		All data is collected via <a href="http://www.curse.com/addons/wow/battledex">Battledex</a>.</p>
+	<p>
+		This site presents level, quality and secondary pet data for World of Warcraft battle pets.<br>
+		If you've ever wondered what the chances of finding a rare level 25 Shore Crab are, we can answer that.
+	</p>
 
-	<p>If you've ever wondered what the chances of finding a rare level 25 Shore Crab are, we can answer that.</p>
+	<p>
+		All data is collected via <a href="http://www.curse.com/addons/wow/battledex">Battledex</a>.
+		You can <a href="./submit">submit your own data</a> to be added to the site.
+	</p>
 
 <table class="table" style="width: auto">
 	<tr>
