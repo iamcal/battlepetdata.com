@@ -1,28 +1,5 @@
 {include file='inc_head.txt'}
 
-<style>{literal}
-
-h2 {
-	margin-top: 30px;
-}
-
-.qualitybar {
-	background-color: #000;
-	padding: 1px;
-	width: auto;
-}
-
-.qualitybar div {
-	height: inherit;
-}
-
-.qual1 { display: inline-block; background-color: silver; }
-.qual2 { display: inline-block; background-color: white; }
-.qual3 { display: inline-block; background-color: green; }
-.qual4 { display: inline-block; background-color: blue; }
-
-</style>{/literal}
-
 <div class="container">
 
 	<h1>
