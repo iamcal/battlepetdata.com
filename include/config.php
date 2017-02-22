@@ -22,10 +22,9 @@
 
 	$GLOBALS['cfg']['db_main'] = array(
 		'host'	=> 'localhost',
-		'user'	=> 'www-rw',
-		'pass'	=> 'pass',
-		'name'	=> 'battledex',
-		'auto_connect' => 0,
+		'name'	=> 'battlepetdata',
+		'user'	=> 'battlepetdata',
+		'pass'	=> trim(file_get_contents(dirname(__FILE__).'/../secrets/mysql_password')),
 	);
 
 

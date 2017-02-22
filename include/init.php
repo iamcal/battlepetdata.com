@@ -210,7 +210,6 @@
 	loadlib('sanitize');
 	loadlib('filter');
 	loadlib('db');
-	loadlib('dbtickets');
 	loadlib('cache');
 	loadlib('crypto');
 	loadlib('crumb');
@@ -289,8 +288,6 @@
 	# (unless you've disable the 'auto_connect' flag) and
 	# will blow its brains out if there's a problem.
 	#
-	
-	db_init();
 
 	if ($this_is_webpage){
 		login_check_login();

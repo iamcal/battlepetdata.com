@@ -1,5 +1,4 @@
-<?php
-
+<?
 	$GLOBALS['db_conns'] = array();
 
 	$GLOBALS['timings']['db_conns_count']	= 0;
@@ -15,75 +14,34 @@
 
 	#################################################################
 
-	function db_init(){
+	function db_insert($tbl, $hash){ return _db_insert($tbl, $hash, 'main'); }
 
-		if (!function_exists('mysql_connect')){
-			die("lib_db requires the mysql PHP extension\n");
-		}
+	function db_insert_dupe($tbl, $hash, $hash2){ return _db_insert_dupe($tbl, $hash, $hash2, 'main'); }
 
-		#
-		# connect to the main cluster immediately so that we can show a
-		# downtime notice it's it's not available? you might not want to
-		# so this - depends on whether you can ever stand the main cluster
-		# being down.
-		#
+	function db_update($tbl, $hash, $where){ return _db_update($tbl, $hash, $where, 'main'); }
 
-		if ($GLOBALS['cfg']['db_main']['auto_connect']){
-			_db_connect('main', null);
-		}
-	}
+	function db_fetch($sql){ return _db_fetch($sql, 'main'); }
+
+	function db_fetch_paginated($sql, $args){ return _db_fetch_paginated($sql, $args, 'main'); }
+
+	function db_write($sql){ return _db_write($sql, 'main'); }
+
+	function db_tickets_write($sql){ return _db_write($sql, 'tickets'); }
 
 	#################################################################
 
-	#
-	# These are just shortcuts to the real functions which allow
-	# us to skip passing the cluster name. these are the only functions
-	# we should call from outside the library.
-	#
-	# In this example we have 2 cluster - one monolith called 'main' and
-	# one partitioned/sharded cluster called 'users' When making calls
-	# to the sharded cluster, we need to pass the shard number as the first
-	# argument.
-	#
+	function _db_connect($cluster, $k=null){
 
-	function db_insert($tbl, $hash){			return _db_insert($tbl, $hash, 'main', null); }
-	function db_insert_users($k, $tbl, $hash){		return _db_insert($tbl, $hash, 'users', $k); }
-
-	function db_insert_bulk($tbl, $rows, $batch=100){	return _db_insert_bulk($tbl, $rows, $batch, 'main', null); }
-	function db_insert_bulk_users($tbl, $rows, $batch=100){	return _db_insert_bulk($tbl, $rows, $batch, 'users', $k); }
-
-	function db_insert_dupe($tbl, $hash, $hash2){		return _db_insert_dupe($tbl, $hash, $hash2, 'main', null); }
-	function db_insert_dupe_users($k, $tbl, $hash, $hash2){	return _db_insert_dupe($tbl, $hash, $hash2, 'users', $k); }
-
-	function db_update($tbl, $hash, $where){		return _db_update($tbl, $hash, $where, 'main', null); }
-	function db_update_users($k, $tbl, $hash, $where){	return _db_update($tbl, $hash, $where, 'users', $k); }
-
-	function db_fetch($sql){				return _db_fetch($sql, 'main', null); }
-	function db_fetch_slave($sql){				return _db_fetch_slave($sql, 'main_slaves'); }
-	function db_fetch_users($k, $sql){			return _db_fetch($sql, 'users', $k); }
-
-	function db_fetch_paginated($sql, $args){		return _db_fetch_paginated($sql, $args, 'main', null); }
-	function db_fetch_paginated_users($k, $sql, $args){	return _db_fetch_paginated($sql, $args, 'users', $k); }
-
-	function db_write($sql){				return _db_write($sql, 'main', null); }
-	function db_write_users($k, $sql){			return _db_write($sql, 'users', $k); }
-
-	function db_tickets_write($sql){			return _db_write($sql, 'tickets', null); }
-
-	#################################################################
-
-	function _db_connect($cluster, $shard){
-
-		$cluster_key = _db_cluster_key($cluster, $shard);
+		$cluster_key = $k ? "{$cluster}-{$k}" : $cluster;
 
 		$host = $GLOBALS['cfg']["db_{$cluster}"]["host"];
 		$user = $GLOBALS['cfg']["db_{$cluster}"]["user"];
 		$pass = $GLOBALS['cfg']["db_{$cluster}"]["pass"];
 		$name = $GLOBALS['cfg']["db_{$cluster}"]["name"];
 
-		if ($shard){
-			$host = $host[$shard];
-			$name = $name[$shard];
+		if ($k){
+			$host = $host[$k];
+			$name = $name[$k];
 		}
 
 		if (!$host){
@@ -97,12 +55,12 @@
 
 		$start = microtime_ms();
 
-		$GLOBALS['db_conns'][$cluster_key] = mysql_connect($host, $user, $pass, 1);
+		$GLOBALS['db_conns'][$cluster_key] = @mysql_connect($host, $user, $pass, 1);
 
 		if ($GLOBALS['db_conns'][$cluster_key]){
 
-			mysql_select_db($name, $GLOBALS['db_conns'][$cluster_key]);
-			mysql_query("SET character_set_results='utf8', character_set_client='utf8', character_set_connection='utf8', character_set_database='utf8', character_set_server='utf8'", $GLOBALS['db_conns'][$cluster_key]);
+			@mysql_select_db($name, $GLOBALS['db_conns'][$cluster_key]);
+			@mysql_query("SET character_set_results='utf8', character_set_client='utf8', character_set_connection='utf8', character_set_database='utf8', character_set_server='utf8'", $GLOBALS['db_conns'][$cluster_key]);
 		}
 
 		$end = microtime_ms();
@@ -133,12 +91,12 @@
 
 	#################################################################
 
-	function _db_query($sql, $cluster, $shard){
+	function _db_query($sql, $cluster, $k=null){
 
-		$cluster_key = _db_cluster_key($cluster, $shard);
+		$cluster_key = $k ? "{$cluster}-{$k}" : $cluster;
 
 		if (!$GLOBALS['db_conns'][$cluster_key]){
-			_db_connect($cluster, $shard);
+			_db_connect($cluster, $k);
 		}
 
 		$trace = _db_callstack();
@@ -151,7 +109,7 @@
 		$GLOBALS['timings']['db_queries_count']++;
 		$GLOBALS['timings']['db_queries_time'] += $end-$start;
 
-		log_notice('db', "DB-$cluster_key: $sql ($trace)", $end-$start);
+		log_notice('db', "DB-$cluster_key: `$sql` ($trace)", $end-$start);
 
 
 		#
@@ -185,7 +143,7 @@
 				'error_code'	=> $error_code,
 				'sql'		=> $sql,
 				'cluster'	=> $cluster,
-				'shard'		=> $shard,
+				'shard'		=> $k,
 			);
 		}else{
 			$ret = array(
@@ -193,7 +151,7 @@
 				'result'	=> $result,
 				'sql'		=> $sql,
 				'cluster'	=> $cluster,
-				'shard'		=> $shard,
+				'shard'		=> $k,
 			);
 		}
 
@@ -204,16 +162,16 @@
 
 	#################################################################
 
-	function _db_insert($tbl, $hash, $cluster, $shard){
+	function _db_insert($tbl, $hash, $cluster, $k=null){
 
 		$fields = array_keys($hash);
 
-		return _db_write("INSERT INTO $tbl (`".implode('`,`',$fields)."`) VALUES ('".implode("','",$hash)."')", $cluster, $shard);
+		return _db_write("INSERT INTO $tbl (`".implode('`,`',$fields)."`) VALUES ('".implode("','",$hash)."')", $cluster, $k);
 	}
 
 	#################################################################
 
-	function _db_insert_dupe($tbl, $hash, $hash2, $cluster, $shard){
+	function _db_insert_dupe($tbl, $hash, $hash2, $cluster, $shard=null){
 
 		$fields = array_keys($hash);
 
@@ -227,49 +185,7 @@
 
 	#################################################################
 
-	function _db_insert_bulk($tbl, $hashes, $batch_size, $cluster, $shard){
-
-		$a = array_keys($hashes);
-		$a = array_shift($a);
-
-		$first_row = $hashes[$a];
-		$fields = array_keys($first_row);
-
-		$flags = $GLOBALS['db_flags']['insert_ignore'] ? ' IGNORE' : '';
-
-		$acc_rows = 0;
-
-		while (count($hashes)){
-
-			$use = array_slice($hashes, 0, $batch_size);
-			$hashes = array_slice($hashes, $batch_size);
-
-			$all_values = array();
-
-			foreach ($use as $hash){
-				$values = array();
-				foreach ($fields as $k) $values[] = "'" . $hash[$k] . "'";
-				$all_values[] = '('.implode(',', $values).')';
-			}
-
-			$all_values = implode(', ', $all_values);
-
-			$ret = _db_write("INSERT{$flags} INTO $tbl (`".implode('`,`',$fields)."`) VALUES $all_values", $cluster, $shard);
-
-			if (!$ret['ok']) return $ret;
-
-			$acc_rows += $ret['affected_rows'];
-		}
-
-		return array(
-			'ok'		=> 1,
-			'affected_rows'	=> $acc_rows,
-		);
-	}
-
-	#################################################################
-
-	function _db_update($tbl, $hash, $where, $cluster, $shard){
+	function _db_update($tbl, $hash, $where, $cluster, $shard=null){
 
 		$bits = array();
 		foreach(array_keys($hash) as $k){
@@ -293,7 +209,7 @@
 
 	function _db_fetch_slave($sql, $cluster){
 
-		$cluster_key = _db_cluster_key($cluster, null);
+		$cluster_key = 'db_' . $cluster;
 
 		$slaves = array_keys($GLOBALS['cfg'][$cluster_key]['host']);
 
@@ -305,9 +221,9 @@
 
 	#################################################################
 
-	function _db_fetch($sql, $cluster, $shard){
+	function _db_fetch($sql, $cluster, $k=null){
 
-		$ret = _db_query($sql, $cluster, $shard);
+		$ret = _db_query($sql, $cluster, $k);
 
 		if (!$ret['ok']) return $ret;
 
@@ -331,7 +247,7 @@
 
 	#################################################################
 
-	function _db_fetch_paginated($sql, $args, $cluster, $shard){
+	function _db_fetch_paginated($sql, $args, $cluster, $k=null){
 
 		#
 		# Setup some defaults
@@ -345,20 +261,15 @@
 
 
 		#
-		# If we're using the 2-query method, get the count first
+		# figure out what we're dealing with
+		# (yes, this is a horrible hack)
 		#
 
-		$calc_found_rows = !!$args['calc_found_rows'];
+		$ret = _db_fetch(preg_replace(array('/^SELECT .* FROM/i', '/ ORDER BY .*$/'), array('SELECT COUNT(*) FROM', ''), $sql), $cluster, $k);
+		if (!$ret['ok']) return $ret;
 
-		if (!$calc_found_rows){
-
-			$count_sql = _db_count_sql($sql, $args);
-			$ret = _db_fetch($count_sql, $cluster, $shard);
-			if (!$ret['ok']) return $ret;
-
-			$total_count = intval(array_pop($ret['rows'][0]));
-			$page_count = ceil($total_count / $per_page);
-		}
+		$total_count = intval(array_pop($ret['rows'][0]));
+		$page_count = ceil($total_count / $per_page);
 
 
 		#
@@ -368,28 +279,14 @@
 		$start = ($page - 1) * $per_page;
 		$limit = $per_page;
 
-		if ($calc_found_rows){
+		$last_page_count = $total_count - (($page_count - 1) * $per_page);
 
+		if ($last_page_count <= $spill && $page_count > 1){
+			$page_count--;
+		}
+
+		if ($page == $page_count){
 			$limit += $spill;
-
-		}else{
-
-			$last_page_count = $total_count - (($page_count - 1) * $per_page);
-
-			if ($last_page_count <= $spill && $page_count > 1){
-				$page_count--;
-			}
-
-			if ($page == $page_count){
-				$limit += $spill;
-			}
-
-			if ($page > $page_count){
-				# we do this to ensure we fetch no rows if we're asking for the
-				# page after the last one, else we might end up with some spill
-				# being returned.
-				$start = $total_count + 1;
-			}
 		}
 
 
@@ -399,96 +296,32 @@
 
 		$sql .= " LIMIT $start, $limit";
 
-		if ($calc_found_rows){
-
-			$sql = preg_replace('/^\s*SELECT\s+/', 'SELECT SQL_CALC_FOUND_ROWS ', $sql);
-		}
-
-		$ret = _db_fetch($sql, $cluster, $shard);
-
-
-		#
-		# figure out paging if we're using CALC_FOUND_ROWS
-		#
-
-		if ($calc_found_rows){
-
-			$ret2 = _db_fetch("SELECT FOUND_ROWS()", $cluster, $shard);
-
-			$total_count = intval(array_pop($ret2['rows'][0]));
-			$page_count = ceil($total_count / $per_page);
-
-			$last_page_count = $total_count - (($page_count - 1) * $per_page);
-
-			if ($last_page_count <= $spill && $page_count > 1){
-				$page_count--;
-			}
-
-			if ($page > $page_count){
-				$ret['rows'] = array();
-			}
-			if ($page < $page_count){
-				$ret['rows'] = array_slice($ret['rows'], 0, $per_page);
-			}
-		}
-
-
-		#
-		# add pagination info to result
-		#
+		$ret = _db_fetch($sql, $cluster, $k);
 
 		$ret['pagination'] = array(
 			'total_count'	=> $total_count,
 			'page'		=> $page,
 			'per_page'	=> $per_page,
 			'page_count'	=> $page_count,
-			'first'		=> $start+1,
-			'last'		=> $start+count($ret['rows']),
+			'range_from'	=> $start+1,
+			'range_to'	=> min($total_count, $start+$limit),
+			'all_pages'	=> range(1, $page_count),
+			'prev_page'	=> $page-1,
+			'next_page'	=> $page+1,
 		);
-
-		if (!count($ret['rows'])){
-			$ret['pagination']['first'] = 0;
-			$ret['pagination']['last'] = 0;
-		}
 		
-		if ($GLOBALS['cfg']['pagination_assign_smarty_variable']){
-			$GLOBALS['smarty']->assign('pagination', $ret['pagination']);
-		}
+		$GLOBALS['smarty']->assign('pagination', $ret['pagination']);
 
 		return $ret;
 	}
 
 	#################################################################
 
-	function _db_count_sql($sql, $args){
+	function _db_write($sql, $cluster, $k=null){
 
-		# remove any ORDER'ing & LIMIT'ing
-		$sql = preg_replace('/ ORDER BY .*$/', '', $sql);
-		$sql = preg_replace('/ LIMIT .*$/', '', $sql);
+		$cluster_key = $k ? "{$cluster}-{$k}" : $cluster;
 
-		# transform the select portion
-		if (isset($args['count_fields'])){
-
-			$sql = preg_replace('/^SELECT (.*?) FROM/i', "SELECT COUNT({$args['count_fields']}) FROM", $sql);
-		}else{
-			$sql = preg_replace_callback('/^SELECT (.*?) FROM/i', '_db_count_sql_from', $sql);
-		}
-
-		return $sql;
-	}
-
-	function _db_count_sql_from($m){
-
-		return "SELECT COUNT($m[1]) FROM";
-	}
-
-	#################################################################
-
-	function _db_write($sql, $cluster, $shard){
-
-		$cluster_key = _db_cluster_key($cluster, $shard);
-
-		$ret = _db_query($sql, $cluster, $shard);
+		$ret = _db_query($sql, $cluster, $k);
 
 		if (!$ret['ok']) return $ret;
 
@@ -536,8 +369,6 @@
 				$items[] = $t['function'].'()';
 			}
 
-			if (!count($items)) return '_global_';
-
 			return implode(' -> ', array_reverse($items));
 		}
 
@@ -561,55 +392,35 @@
 
 	#################################################################
 
-	function _db_disconnect($cluster, $shard=null){
+	function db_get_shard($cluster){
 
-		$cluster_key = _db_cluster_key($cluster, $shard);
+		if ($cluster == 'users') return rand(1,2);
 
-		if (is_resource($GLOBALS['db_conns'][$cluster_key])){
-			@mysql_close($GLOBALS['db_conns'][$cluster_key]);
-		}
-
-		unset($GLOBALS['db_conns'][$cluster_key]);
+		return 0;
 	}
 
+	function db_shards($cluster){
 
-	function db_disconnect_all(){
-
-		foreach ($GLOBALS['db_conns'] as $cluster_key => $conn){
-
-			if (is_resource($conn)){
-				@mysql_close($conn);
-			}
-
-			unset($GLOBALS['db_conns'][$cluster_key]);
-		}
+		return array_keys($GLOBALS['cfg']["db_{$cluster}"]['host']);
 	}
 
 	#################################################################
 
-	function _db_cluster_key($cluster, $shard){
+	#
+	# [iamcal] I'm still not convinced that this is needed, instead of AddSlashes().
+	# The difference is that it doesn't escape \r or \n (which don't matter at all)
+	# and \x1a (delete) which doesn;t appear to matter at all either. Anyone have
+	# any better reason?
+	#
 
-		return $shard ? "{$cluster}-{$shard}" : $cluster;
-	}
+	function db_quote($str, $dbconn=null){
 
-	#################################################################
-
-	function db_ping($cluster, $shard=null){
-
-		$cluster_key = _db_cluster_key($cluster, $shard);
-
-		if (is_resource($GLOBALS['db_conns'][$cluster_key])){
-
-			$start = microtime_ms();
-			$ret = @mysql_ping($GLOBALS['db_conns'][$cluster_key]);
-			$end = microtime_ms();
-
-			log_notice('db', "DB-$cluster_key: Ping", $end-$start);
-
-			return $ret;
+		if (!$dbconn){
+			return mysql_real_escape_string($str);
 		}
 
-		return FALSE;
+		return mysql_real_escape_string($str, $dbconn);
 	}
 
 	#################################################################
+?>

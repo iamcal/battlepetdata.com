@@ -8,6 +8,7 @@
 	$pets = array();
 
 	$ret = db_fetch("SELECT * FROM warcraftpets.pets WHERE is_wild='Y'");
+dumper($ret);
 	foreach ($ret['rows'] as $row){
 
 		$pets[$row['species_id']] = $row;
