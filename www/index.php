@@ -1,5 +1,5 @@
 <?php
-	include('include/init.php');
+	include('../include/init.php');
 
 	#
 	# get list of all pet species and their total sightings
