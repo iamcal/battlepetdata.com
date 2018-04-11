@@ -6,7 +6,7 @@
 	#
 
 	$url_enc = AddSlashes($_GET['id']);
-	$pet = db_single(db_fetch("SELECT * FROM warcraftpets.pets WHERE url='{$url_enc}'"));
+	$pet = db_single(db_fetch("SELECT * FROM pets_defs WHERE url='{$url_enc}'"));
 
 	if (!$pet['id']) error_404();
 
@@ -27,7 +27,7 @@
 		'seconds_to_levels' => array(),
 	);
 
-	$ret = db_fetch("SELECT * FROM pets WHERE pet_id={$pet['species_id']}");
+	$ret = db_fetch("SELECT * FROM pets_data WHERE pet_id={$pet['species_id']}");
 	foreach ($ret['rows'] as $row){
 
 		#$stats['levels'][$row['level']] = 
@@ -56,7 +56,7 @@
 		'all' => array(),
 	);
 
-	$ret = db_fetch("SELECT * FROM pets WHERE battle_pet_id={$pet['species_id']}");
+	$ret = db_fetch("SELECT * FROM pets_data WHERE battle_pet_id={$pet['species_id']}");
 	foreach ($ret['rows'] as $row){
 
 		$rstats['all'][$row['pet_id']] += $row['count'];
@@ -77,7 +77,7 @@
 	if (count($pet_ids)){
 
 		$ids = implode(',', array_keys($pet_ids));
-		$ret = db_fetch("SELECT * FROM warcraftpets.pets WHERE species_id IN ($ids)");
+		$ret = db_fetch("SELECT * FROM pets_defs WHERE species_id IN ($ids)");
 		foreach ($ret['rows'] as $row){
 
 			$pets[$row['species_id']] = $row;

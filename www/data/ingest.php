@@ -21,7 +21,7 @@
 		$cnt = 0;
 
 		$filename_enc = AddSlashes($filename);
-		db_write("DELETE FROm pets WHERE source='{$filename_enc}'");
+		db_write("DELETE FROM pets_data WHERE source='{$filename_enc}'");
 
 		foreach ($BattleDexDB['pets'] as $k => $v){
 
@@ -29,8 +29,8 @@
 
 				list($a,$b,$c) = explode('_', $k2);
 
-				db_insert('pets', array(
-					'source'	=> AddSlashes($filename),
+				db_insert('pets_data', array(
+					'source'	=> $filename,
 					'pet_id'	=> intval($k),
 					'battle_pet_id'	=> intval($a),
 					'level'		=> intval($b),
