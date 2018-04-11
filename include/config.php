@@ -20,12 +20,10 @@
 	# Things you'll certainly need to tweak
 	#
 
-	$GLOBALS['cfg']['db_main'] = array(
-		'host'	=> 'localhost',
-		'name'	=> 'battlepetdata',
-		'user'	=> 'battlepetdata',
-		'pass'	=> trim(file_get_contents(dirname(__FILE__).'/../secrets/mysql_password')),
-	);
+	$GLOBALS['cfg']['db_host'] = 'localhost';
+	$GLOBALS['cfg']['db_name'] = 'battlepetdata';
+	$GLOBALS['cfg']['db_user'] = 'battlepetdata';
+	$GLOBALS['cfg']['db_pass'] = trim(file_get_contents(dirname(__FILE__).'/../secrets/mysql_password'));
 
 
 	# hard coding this URL will ensure it works in cron mode too
