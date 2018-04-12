@@ -2,15 +2,15 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>{$cfg.site_name|escape}{if $page_title} | {$page_title|escape}{/if}</title>
+    <title>{$cfg.site_name|escape}!{if $page_title} | {$page_title|escape}{/if}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <link href="{$cfg.abs_root_url}css/bootstrap.min.css" rel="stylesheet">
-    <link href="{$cfg.abs_root_url}css/main.source.css" rel="stylesheet">
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/main.source.css" rel="stylesheet">
 {if $cfg.auth_roles.staff}
-    <link href="{$cfg.abs_root_url}css/admin.source.css" rel="stylesheet">
+    <link href="/css/admin.source.css" rel="stylesheet">
 {/if}
 
     <!--[if lt IE 9]>
@@ -24,7 +24,7 @@
     <div class="navbar navbar-static-top">
       <div class="navbar-inner">
         <div class="container">
-          <a class="brand" href="{$cfg.abs_root_url}">{$cfg.site_name|escape}</a>
+          <a class="brand" href="/">{$cfg.site_name|escape}</a>
         </div>
       </div>
     </div>
