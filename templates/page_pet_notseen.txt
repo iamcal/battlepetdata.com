@@ -3,13 +3,13 @@
 <div class="container">
 
 	<h1>
-		<img src="http://cdn.warcraftpets.com/images/pets/small/{$pet.image}" width="40" height="40">
+		<img src="https://cdn.warcraftpets.com/images/pets/small/{$pet.image}" width="40" height="40">
 		{$pet.name}
 	</h1>
 
 	<p>Total times seen: <i>Never</i></p>
 
-	<p><a href="http://www.warcraftpets.com/wow-pets/-/-/{$pet.url}/">View on Warcraft Pets</a></p>
+	<p><a href="https://www.warcraftpets.com/wow-pets/-/-/{$pet.url}/">View on Warcraft Pets</a></p>
 
 	<p>We don't have any collection data for this pet yet.
 		Please <a href="./submit">submit your data</a> to help grow our database.</p>

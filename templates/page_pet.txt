@@ -3,13 +3,13 @@
 <div class="container">
 
 	<h1>
-		<img src="http://cdn.warcraftpets.com/images/pets/small/{$pet.image}" width="40" height="40">
+		<img src="https://cdn.warcraftpets.com/images/pets/small/{$pet.image}" width="40" height="40">
 		{$pet.name}
 	</h1>
 
 	<p>Total times seen: {$stats.total_seen}</p>
 
-	<p><a href="http://www.warcraftpets.com/wow-pets/-/-/{$pet.url}/">View on Warcraft Pets</a></p>
+	<p><a href="https://www.warcraftpets.com/wow-pets/-/-/{$pet.url}/">View on Warcraft Pets</a></p>
 
 <div class="row-fluid">
 <div class="span6">
@@ -61,7 +61,7 @@
 {foreach from=$stats.levels_primary item='prow'}
 	<tr>
 		<td colspan="4" style="padding-top: 1em">
-			<img src="http://cdn.warcraftpets.com/images/pets/small/{$prow.pet.image}" width="20" height="20">
+			<img src="https://cdn.warcraftpets.com/images/pets/small/{$prow.pet.image}" width="20" height="20">
 {if $prow.is_main}
 			{$prow.pet.name|escape} (Primary)
 {elseif $prow.pet.id==$pet.id}
@@ -102,7 +102,7 @@
 	</tr>
 {foreach from=$stats.seconds item='row'}
 	<tr>
-		<td><img src="http://cdn.warcraftpets.com/images/pets/small/{$row.image}" width="20" height="20"></td>
+		<td><img src="https://cdn.warcraftpets.com/images/pets/small/{$row.image}" width="20" height="20"></td>
 {if $row.id==$pet.id}
 		<td>{$row.name|escape}</td>
 {else}
@@ -133,7 +133,7 @@
 	</tr>
 {foreach from=$stats.seconds_to item='row'}
 	<tr>
-		<td><img src="http://cdn.warcraftpets.com/images/pets/small/{$row.image}" width="20" height="20"></td>
+		<td><img src="https://cdn.warcraftpets.com/images/pets/small/{$row.image}" width="20" height="20"></td>
 {if $row.id==$pet.id}
 		<td>{$row.name|escape}</td>
 {else}

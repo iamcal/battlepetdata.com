@@ -23,7 +23,7 @@
 {foreach from=$pets item='row'}
 	<tr>
 		<td>#{$row.species_id}</td>
-		<td><a href="./{$row.url}"><img src="http://cdn.warcraftpets.com/images/pets/small/{$row.image}" width="20" height="20"></a></td>
+		<td><a href="./{$row.url}"><img src="https://cdn.warcraftpets.com/images/pets/small/{$row.image}" width="20" height="20"></a></td>
 		<td><a href="./{$row.url}">{$row.name}</a></td>
 		<td style="text-align: right">{$row.total_seen|intval}</td>
 	</tr>
