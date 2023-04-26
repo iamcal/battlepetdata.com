@@ -15,4 +15,4 @@ ErrorDocument 404 /404.php
 
 RewriteEngine on
 RewriteRule ^submit$	submit.php	[L]
-RewriteRule ^([^/.]+)$	pet.php?id=$1	[L,QSA]
+RewriteRule ^([^/.]+)$	pet.php?id=$1	[L,B,QSA]
