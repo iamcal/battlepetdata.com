@@ -16,7 +16,7 @@
 	$ret = db_fetch("SELECT pet_id, SUM(count) AS total FROM pets_data GROUP BY pet_id");
 	foreach ($ret['rows'] as $row){
 
-		if (!is_array($pets[$row['pet_id']])) continue;
+		if (!isset($pets[$row['pet_id']]) || !is_array($pets[$row['pet_id']])) continue;
 
 		$pets[$row['pet_id']]['total_seen'] = $row['total'];
 	}

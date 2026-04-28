@@ -18,7 +18,7 @@
 		curl_setopt($ch, CURLOPT_NOBODY, true);
 		curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
 
-		if ($more['return_curl_handle']){
+		if (!empty($more['return_curl_handle'])){
 			return $ch;
 		}
 
@@ -31,7 +31,7 @@
 
 		$ch = _http_curl_handle($url, $headers, $more);
 
-		if ($more['return_curl_handle']){
+		if (!empty($more['return_curl_handle'])){
 			return $ch;
 		}
 
@@ -47,7 +47,7 @@
 		curl_setopt($ch, CURLOPT_POST, true);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $post_fields);
 
-		if ($more['return_curl_handle']){
+		if (!empty($more['return_curl_handle'])){
 			return $ch;
 		}
 
@@ -70,7 +70,7 @@
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $post_fields);
 		}
 
-		if ($more['return_curl_handle']){
+		if (!empty($more['return_curl_handle'])){
 			return $ch;
 		}
 
@@ -100,7 +100,7 @@
 		# curl_setopt($ch, CURLOPT_INFILE, $bytes);
 		# curl_setopt($ch, CURLOPT_INFILESIZE, strlen($bytes));
 
-		if ($more['return_curl_handle']){
+		if (!empty($more['return_curl_handle'])){
 			return $ch;
 		}
 
@@ -119,9 +119,9 @@
 			$url = $req['url'];
 
 			$method = (isset($req['method'])) ? strtoupper($req['method']) : 'GET';
-			$body = (is_array($req['body'])) ? $req['body'] : null;
-			$headers = (is_array($req['headers'])) ? $req['headers'] : array();
-			$more = (is_array($req['more'])) ? $req['more'] : array();
+			$body = (isset($req['body']) && is_array($req['body'])) ? $req['body'] : null;
+			$headers = (isset($req['headers']) && is_array($req['headers'])) ? $req['headers'] : array();
+			$more = (isset($req['more']) && is_array($req['more'])) ? $req['more'] : array();
 
 			$more['return_curl_handle'] = 1;
 
@@ -181,7 +181,7 @@
 
 		$end = microtime_ms();
 
-		$GLOBALS['timings']['http_count'] += count($handlers);
+		$GLOBALS['timings']['http_count'] += count($handles);
 		$GLOBALS['timings']['http_time'] += $end-$start;
 
 		foreach ($handles as $ch){
@@ -224,11 +224,11 @@
 		curl_setopt($ch, CURLINFO_HEADER_OUT, true);
 		curl_setopt($ch, CURLOPT_HEADER, true);
 
-		if ($more['http_port']){
+		if (!empty($more['http_port'])){
 			curl_setopt($ch, CURLOPT_PORT, $more['http_port']);
 		}
 
-		if ($more['follow_redirects']){
+		if (!empty($more['follow_redirects'])){
 			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 			curl_setopt($ch, CURLOPT_MAXREDIRS, intval($more['follow_redirects']));
 		}
@@ -259,15 +259,21 @@
 
 	function _http_parse_response($raw, $info){
 
-		list($head, $body) = explode("\r\n\r\n", $raw, 2);
-		list($head_out, $body_out) = explode("\r\n\r\n", $info['request_header'], 2);
+		$parts = explode("\r\n\r\n", $raw, 2);
+		$head = $parts[0] ?? '';
+		$body = $parts[1] ?? '';
+
+		$parts_out = explode("\r\n\r\n", $info['request_header'] ?? '', 2);
+		$head_out = $parts_out[0] ?? '';
+		$body_out = $parts_out[1] ?? '';
 		unset($info['request_header']);
 
 		$headers_in = http_parse_headers($head, '_status');
 		$headers_out = http_parse_headers($head_out, '_request');
 
-		preg_match("/^([A-Z]+)\s/", $headers_out['_request'], $m);
-		$method = $m[1];
+		$m = array();
+		preg_match("/^([A-Z]+)\s/", $headers_out['_request'] ?? '', $m);
+		$method = $m[1] ?? '';
 
 		# log_notice("http", "{$method} {$url}", $end-$start);
 
@@ -334,7 +340,9 @@
 		);
 
 		foreach ($lines as $line){
-			list($k, $v) = explode(':', $line, 2);
+			$kv = explode(':', $line, 2);
+			$k = $kv[0] ?? '';
+			$v = $kv[1] ?? '';
 			$out[StrToLower($k)] = trim($v);
 		}
 

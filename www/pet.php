@@ -5,10 +5,10 @@
 	# get pet
 	#
 
-	$url_enc = AddSlashes($_GET['id']);
+	$url_enc = AddSlashes($_GET['id'] ?? '');
 	$pet = db_single(db_fetch("SELECT * FROM pets_defs WHERE url='{$url_enc}'"));
 
-	if (!$pet['id']) error_404();
+	if (empty($pet['id'])) error_404();
 
 	$smarty->assign('pet', $pet);
 
@@ -30,18 +30,18 @@
 	$ret = db_fetch("SELECT * FROM pets_data WHERE pet_id={$pet['species_id']}");
 	foreach ($ret['rows'] as $row){
 
-		#$stats['levels'][$row['level']] = 
+		#$stats['levels'][$row['level']] =
 		#dumper($row);
 
 		$stats['total_seen'] += $row['count'];
-		$stats['qualities'][$row['quality']] += $row['count'];
-		$stats['qualities_by_level'][$row['level']][$row['quality']] += $row['count'];
-		$stats['levels'][$row['level']] += $row['count'];
-		$stats['levels_by_primary'][$row['battle_pet_id']][$row['level']] += $row['count'];
+		$stats['qualities'][$row['quality']] = ($stats['qualities'][$row['quality']] ?? 0) + $row['count'];
+		$stats['qualities_by_level'][$row['level']][$row['quality']] = ($stats['qualities_by_level'][$row['level']][$row['quality']] ?? 0) + $row['count'];
+		$stats['levels'][$row['level']] = ($stats['levels'][$row['level']] ?? 0) + $row['count'];
+		$stats['levels_by_primary'][$row['battle_pet_id']][$row['level']] = ($stats['levels_by_primary'][$row['battle_pet_id']][$row['level']] ?? 0) + $row['count'];
 
 		if ($row['battle_pet_id']){
-			$stats['seconds_to'][$row['battle_pet_id']] += $row['count'];
-			$stats['seconds_to_levels'][$row['battle_pet_id']][$row['level']] += $row['count'];
+			$stats['seconds_to'][$row['battle_pet_id']] = ($stats['seconds_to'][$row['battle_pet_id']] ?? 0) + $row['count'];
+			$stats['seconds_to_levels'][$row['battle_pet_id']][$row['level']] = ($stats['seconds_to_levels'][$row['battle_pet_id']][$row['level']] ?? 0) + $row['count'];
 		}
 
 		$pet_ids[$row['battle_pet_id']] = 1;
@@ -59,8 +59,8 @@
 	$ret = db_fetch("SELECT * FROM pets_data WHERE battle_pet_id={$pet['species_id']}");
 	foreach ($ret['rows'] as $row){
 
-		$rstats['all'][$row['pet_id']] += $row['count'];
-		$rstats['level'][$row['pet_id']][$row['level']] += $row['count'];
+		$rstats['all'][$row['pet_id']] = ($rstats['all'][$row['pet_id']] ?? 0) + $row['count'];
+		$rstats['level'][$row['pet_id']][$row['level']] = ($rstats['level'][$row['pet_id']][$row['level']] ?? 0) + $row['count'];
 
 		$pet_ids[$row['pet_id']] = 1;
 	}
@@ -91,8 +91,6 @@
 
 	$out = array();
 
-	$smarty->assign_by_ref('stats', $out);
-
 	$out['total_seen'] = $stats['total_seen'];
 
 	if (!$stats['total_seen']){
@@ -120,10 +118,10 @@
 	function local_prep_quals($a){
 
 		$out = array(
-			'num_1' => intval($a[1]),
-			'num_2' => intval($a[2]),
-			'num_3' => intval($a[3]),
-			'num_4' => intval($a[4]),
+			'num_1' => intval($a[1] ?? 0),
+			'num_2' => intval($a[2] ?? 0),
+			'num_3' => intval($a[3] ?? 0),
+			'num_4' => intval($a[4] ?? 0),
 		);
 
 		$out['num_t'] = $out['num_1']  + $out['num_2'] + $out['num_3'] + $out['num_4'];
@@ -150,7 +148,7 @@
 
 	$out['levels_primary'] = array();
 	foreach ($stats['levels_by_primary'] as $primary_id => $levels){
-		$primary = $primary_id ? $pets[$primary_id] : $pet;
+		$primary = $primary_id ? ($pets[$primary_id] ?? $pet) : $pet;
 
 		$data = local_prep_levels($levels);
 		$data['pet'] = $primary;
@@ -160,6 +158,7 @@
 	}
 
 	function local_prep_levels($data){
+		if (!is_array($data)) $data = array();
 		ksort($data);
 		$out = array();
 		$out['total'] = 0;
@@ -188,16 +187,17 @@
 
 	$out['seconds'] = array();
 	foreach ($rstats['all'] as $k => $v){
-		$spet = $pets[$k];
+		$spet = $pets[$k] ?? array();
 
 		$spet['num'] = $v;
 		$spet['levels'] = array();
 
-		ksort($rstats['level'][$k]);
+		$rlvls = $rstats['level'][$k] ?? array();
+		ksort($rlvls);
 
-		$spet['simple_levels'] = implode(', ', array_keys($rstats['level'][$k]));
+		$spet['simple_levels'] = implode(', ', array_keys($rlvls));
 
-		foreach ($rstats['level'][$k] as $lvl => $num){
+		foreach ($rlvls as $lvl => $num){
 			$spet['levels'] = array(
 				'level' => $lvl,
 				'num' => $num,
@@ -210,16 +210,17 @@
 
 	$out['seconds_to'] = array();
 	foreach ($stats['seconds_to'] as $k => $v){
-		$spet = $pets[$k];
+		$spet = $pets[$k] ?? array();
 
 		$spet['num'] = $v;
 		$spet['levels'] = array();
 
-		ksort($stats['seconds_to_levels'][$k]);
+		$slvls = $stats['seconds_to_levels'][$k] ?? array();
+		ksort($slvls);
 
-		$spet['simple_levels'] = implode(', ', array_keys($stats['seconds_to_levels'][$k]));
+		$spet['simple_levels'] = implode(', ', array_keys($slvls));
 
-		foreach ($stats['seconds_to_levels'][$k] as $lvl => $num){
+		foreach ($slvls as $lvl => $num){
 			$spet['levels'] = array(
 				'level' => $lvl,
 				'num' => $num,
@@ -228,6 +229,8 @@
 
 		$out['seconds_to'][] = $spet;
 	}
+
+	$smarty->assign('stats', $out);
 
 
 	#

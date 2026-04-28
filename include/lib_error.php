@@ -10,8 +10,8 @@
 
 	function error_404($msg=null){
 
-		$url  = $_SERVER['REQUEST_URI'];
-		$orig = $_SERVER['REDIRECT_URL'];
+		$url  = $_SERVER['REQUEST_URI'] ?? '';
+		$orig = $_SERVER['REDIRECT_URL'] ?? '';
 
 
 		#
@@ -20,7 +20,9 @@
 		# 2) it currently has a slash at the end
 		#
 
-		list($url_path, $url_qs) = explode('?', $url, 2);
+		$parts = explode('?', $url, 2);
+		$url_path = $parts[0] ?? '';
+		$url_qs = $parts[1] ?? '';
 
 		if ($url_path == $orig){
 			if (substr($url_path, -1) == '/'){
@@ -35,7 +37,7 @@
 		# static redirect map. add things here if you know you moved them.
 		#
 
-		if ($redir = $GLOBALS['cfg']['rewrite_static_urls'][$url]){
+		if ($redir = ($GLOBALS['cfg']['rewrite_static_urls'][$url] ?? null)){
 			header("location: {$redir}");
 			exit;
 		}
@@ -60,8 +62,8 @@
 
 		$debug_block .= "Args:\n";
 		$args = array(
-			'SERVER_REQUEST_URI'	=> $_SERVER['REQUEST_URI'],
-			'SERVER_REDIRECT_URL'	=> $_SERVER['REDIRECT_URL'],
+			'SERVER_REQUEST_URI'	=> $_SERVER['REQUEST_URI'] ?? '',
+			'SERVER_REDIRECT_URL'	=> $_SERVER['REDIRECT_URL'] ?? '',
 		);
 		$debug_block .= error_format_hash($args)."\n\n";
 
@@ -98,8 +100,8 @@
 
 		$debug_block .= "Args:\n";
 		$args = array(
-			'SERVER_REQUEST_URI'	=> $_SERVER['REQUEST_URI'],
-			'SERVER_REDIRECT_URL'	=> $_SERVER['REDIRECT_URL'],
+			'SERVER_REQUEST_URI'	=> $_SERVER['REQUEST_URI'] ?? '',
+			'SERVER_REDIRECT_URL'	=> $_SERVER['REDIRECT_URL'] ?? '',
 		);
 		$debug_block .= error_format_hash($args)."\n\n";
 
@@ -145,8 +147,8 @@
 
 		$debug_block .= "Args:\n";
 		$args = array(
-			'SERVER_REQUEST_URI'	=> $_SERVER['REQUEST_URI'],
-			'SERVER_REDIRECT_URL'	=> $_SERVER['REDIRECT_URL'],
+			'SERVER_REQUEST_URI'	=> $_SERVER['REQUEST_URI'] ?? '',
+			'SERVER_REDIRECT_URL'	=> $_SERVER['REDIRECT_URL'] ?? '',
 		);
 		$debug_block .= error_format_hash($args)."\n\n";
 
@@ -192,7 +194,7 @@
 		foreach ($trace as $item){
 
 			$args = array();
-			foreach ($item['args'] as $arg){
+			foreach (($item['args'] ?? array()) as $arg){
 				if (is_object($arg)){
 					$args[] = "Object()";
 				}else{
@@ -204,18 +206,20 @@
 			}
 			$args = implode(', ', $args);
 
-			$function = "{$item['function']}($args)";
+			$item_function = $item['function'] ?? '';
+			$function = "{$item_function}($args)";
 
-			if (preg_match('!^error_!', $item['function'])){
+			if (preg_match('!^error_!', $item_function)){
 				$pairs = array();
 				$function = "ERROR";
 			}
 
-			$file = str_replace($root_path, '', $item['file']);
+			$file = str_replace($root_path, '', $item['file'] ?? '');
+			$line = $item['line'] ?? '';
 
 			$pairs[] = array(
 				$function,
-				"$file:$item[line]",
+				"$file:$line",
 			);
 		}
 
@@ -253,7 +257,7 @@
 		$lengths = array();
 		foreach ($pairs as $pair){
 			foreach ($pair as $k => $str){
-				$lengths[$k] = max(intval($lengths[$k]), strlen($str));
+				$lengths[$k] = max(intval($lengths[$k] ?? 0), strlen($str));
 			}
 		}
 

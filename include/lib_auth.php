@@ -24,7 +24,7 @@
 			$GLOBALS['cfg']['auth_roles']['staff'] = 1;
 		}
 
-		if ($GLOBALS['this_is_shell']){
+		if (!empty($GLOBALS['this_is_shell'])){
 
 			$GLOBALS['cfg']['auth_roles']['staff'] = 1;
 		}
@@ -35,7 +35,7 @@
 
 	function auth_has_role($role){
 
-		return !!$GLOBALS['cfg']['auth_roles'][$role];
+		return !!($GLOBALS['cfg']['auth_roles'][$role] ?? 0);
 	}
 
 	########################################################################

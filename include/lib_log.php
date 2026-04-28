@@ -36,7 +36,7 @@
 	# log a startup notice so we know what page this is and what env
 	#
 
-	log_notice('init', "this is $_SERVER[SCRIPT_NAME] on {$GLOBALS['cfg']['environment']}");
+	log_notice('init', "this is ".($_SERVER['SCRIPT_NAME'] ?? '')." on {$GLOBALS['cfg']['environment']}");
 
 	###################################################################################################################
 
@@ -63,7 +63,7 @@
 
 	function _log_dispatch($level, $msg, $more = array()){
 
-		if ($GLOBALS['log_handlers'][$level]){
+		if (!empty($GLOBALS['log_handlers'][$level])){
 
 			foreach ($GLOBALS['log_handlers'][$level] as $handler){
 
@@ -84,12 +84,12 @@
 		# if this is a CLI request, don't try and write to the error
 		# log, since that's just STDERR
 
-		if ($GLOBALS['this_is_shell']) return;
+		if (!empty($GLOBALS['this_is_shell'])) return;
 
-		$page = $GLOBALS['HTTP_SERVER_VARS']['REQUEST_URI'];
+		$page = $_SERVER['REQUEST_URI'] ?? '';
 
-		if ($more['type']){
-			$msg = "[$more[type]] $msg";
+		if (!empty($more['type'])){
+			$msg = "[{$more['type']}] $msg";
 		}
 
 		$msg = str_replace("\n", ' ', $msg);
@@ -108,18 +108,20 @@
 		if (!auth_has_role('staff')) return;
 
 		# if this isn't a webpage, the `plain` handler will display the error
-		if (!$GLOBALS['this_is_webpage']) return;
+		if (empty($GLOBALS['this_is_webpage'])) return;
 
 		# only shows notices if we asked to see them
-		if ($level == 'notice' && !$GLOBALS['cfg']['admin_flags_show_notices']) return;
+		if ($level == 'notice' && empty($GLOBALS['cfg']['admin_flags_show_notices'])) return;
 
-		$type = $more['type'] ? $more['type'] : '';
+		$type = !empty($more['type']) ? $more['type'] : '';
 
-		$colors = $GLOBALS['log_html_colors']['_'.$level];
-		if (!$colors) $colors = $GLOBALS['log_html_colors'][$type];
+		$colors = $GLOBALS['log_html_colors']['_'.$level] ?? null;
+		if (!$colors) $colors = $GLOBALS['log_html_colors'][$type] ?? null;
 		if (!$colors) $colors = '#eee,#000';
 
-		list($bgcolor, $color) = explode(',', $colors);
+		$cparts = explode(',', $colors);
+		$bgcolor = $cparts[0] ?? '';
+		$color = $cparts[1] ?? '';
 
 		echo "<div style=\"background-color: $bgcolor; color: $color; margin: 1px 1px 0 1px; border: 1px solid #000; padding: 4px; text-align: left; font-family: sans-serif;\">";
 
@@ -127,7 +129,7 @@
 
 		echo HtmlSpecialChars($msg);
 
-		if ($more['time'] > -1) echo " ($more[time] ms)";
+		if (isset($more['time']) && $more['time'] > -1) echo " ({$more['time']} ms)";
 
 		echo "</div>\n";
 	}
@@ -140,12 +142,12 @@
 	function _log_handler_plain($level, $msg, $more = array()){
 
 		# if this isn't the shell, the `html` handler will take care of this
-		if (!$GLOBALS['this_is_shell']) return;
+		if (empty($GLOBALS['this_is_shell'])) return;
 
 		# only shows notices if we asked to see them
-		if ($level == 'notice' && !$GLOBALS['cfg']['admin_flags_show_notices']) return;
+		if ($level == 'notice' && empty($GLOBALS['cfg']['admin_flags_show_notices'])) return;
 
-		$type = $more['type'] ? $more['type'] : $level;
+		$type = !empty($more['type']) ? $more['type'] : $level;
 
 		$out = "";
 
@@ -153,7 +155,7 @@
 
 		$out .= $msg;
 
-		if ($more['time'] > -1) $out .= " ($more[time] ms)";
+		if (isset($more['time']) && $more['time'] > -1) $out .= " ({$more['time']} ms)";
 
 		$out .= "\n";
 

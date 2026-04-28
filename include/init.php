@@ -41,7 +41,7 @@
 
 	function loadlib($name){
 
-		if ($GLOBALS['loaded_libs'][$name]){
+		if (isset($GLOBALS['loaded_libs'][$name])){
 			return;
 		}
 
@@ -53,7 +53,7 @@
 
 	function loadpear($name){
 
-		if ($GLOBALS['loaded_libs']['PEAR:'.$name]){
+		if (isset($GLOBALS['loaded_libs']['PEAR:'.$name])){
 			return;
 		}
 
@@ -101,15 +101,16 @@
 			$server_url = "{$scheme}://{$_SERVER['SERVER_NAME']}:{$server_port}";
 		}
 	}
-	
+
 	if (! $server_url){
-		$scheme = ($_SERVER['SERVER_PORT'] == 443) ? "https" : "http";
-		$server_url = "{$scheme}://{$_SERVER['SERVER_NAME']}";
+		$scheme = ((isset($_SERVER['SERVER_PORT'])) && ($_SERVER['SERVER_PORT'] == 443)) ? "https" : "http";
+		$server_name = $_SERVER['SERVER_NAME'] ?? '';
+		$server_url = "{$scheme}://{$server_name}";
 	}
 
 	$cwd = '';
 
-	if ($parent_dirname = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/')){
+	if ($parent_dirname = rtrim(dirname($_SERVER['SCRIPT_NAME'] ?? ''), '/')){
 		$parts = explode("/", $parent_dirname);
 		$cwd = implode("/", array_slice($parts, 1));
 
@@ -123,49 +124,13 @@
 	# at some point or another. So we choose trailing slashes.
 
 	$GLOBALS['cfg']['abs_root_url'] = rtrim($server_url, '/') . "/";
-	
+
 	if ($cwd){
 		$GLOBALS['cfg']['abs_root_url'] .= $cwd . "/";
 	}
 
 	$GLOBALS['cfg']['auth_cookie_domain'] = parse_url($GLOBALS['cfg']['abs_root_url'], 1);
 
-	#
-	# Poor man's database configs:
-	# See notes in config.php
-	#
-
-	if ($GLOBALS['cfg']['db_enable_poormans_slaves']){
-
-		$GLOBALS['cfg']['db_main_slaves'] = $GLOBALS['cfg']['db_main'];
-
-		$GLOBALS['cfg']['db_main_slaves']['host'] = array(
-			1 => $GLOBALS['cfg']['db_main']['host'],
-		);
-
-		$GLOBALS['cfg']['db_main_slaves']['name'] = array(
-			1 => $GLOBALS['cfg']['db_main']['name'],
-		);
-	}
-
-	if ($GLOBALS['cfg']['db_enable_poormans_ticketing']){
-
-		$GLOBALS['cfg']['db_tickets'] = $GLOBALS['cfg']['db_main'];
-	}
-
-	if ($GLOBALS['cfg']['db_enable_poormans_federation']){
-
-		$GLOBALS['cfg']['db_users'] = $GLOBALS['cfg']['db_main'];
-
-		$GLOBALS['cfg']['db_users']['host'] = array(
-			1 => $GLOBALS['cfg']['db_main']['host'],
-		);
-
-		$GLOBALS['cfg']['db_users']['name'] = array(
-			1 => $GLOBALS['cfg']['db_main']['name'],
-		);
-
-	}
 
 	#
 	# install an error handler to check for dubious notices?
@@ -175,7 +140,7 @@
 	# libraries get loaded so that we get to check their syntax.
 	#
 
-	if ($cfg['check_notices']){
+	if (isset($cfg['check_notices']) && $cfg['check_notices']){
 		set_error_handler('handle_error_notices', E_NOTICE);
 		error_reporting(E_ALL | E_STRICT);
 	}
@@ -190,12 +155,13 @@
 	# figure out some global flags
 	#
 
-	$this_is_apache		= strlen($_SERVER['REQUEST_URI']) ? 1 : 0;
-	$this_is_shell		= $_SERVER['SHELL'] ? 1 : 0;
+	$this_is_apache		= strlen($_SERVER['REQUEST_URI'] ?? '') ? 1 : 0;
+	$this_is_shell		= isset($_SERVER['SHELL']) && $_SERVER['SHELL'] ? 1 : 0;
+	$this_is_api		= $this_is_api ?? 0;
 	$this_is_webpage	= $this_is_apache && !$this_is_api ? 1 : 0;
 
-	$cfg['admin_flags_no_db']		= $_GET['no_db'] ? 1 : 0;
-	$cfg['admin_flags_show_notices']	= $_GET['debug'] ? 1 : 0;
+	$cfg['admin_flags_no_db']		= isset($_GET['no_db']) && $_GET['no_db'] ? 1 : 0;
+	$cfg['admin_flags_show_notices']	= isset($_GET['debug']) && $_GET['debug'] ? 1 : 0;
 
 
 	#
@@ -231,7 +197,7 @@
 	}
 
 
-	if (($GLOBALS['cfg']['site_disabled']) && (! $this_is_shell)){
+	if ((isset($GLOBALS['cfg']['site_disabled']) && $GLOBALS['cfg']['site_disabled']) && (! $this_is_shell)){
 
 		header("HTTP/1.1 503 Service Temporarily Unavailable");
 		header("Status: 503 Service Temporarily Unavailable");
@@ -294,9 +260,9 @@
 		login_check_login();
 	}
 
-	if (StrToLower($_SERVER['HTTP_X_MOZ']) == 'prefetch'){
+	if (StrToLower($_SERVER['HTTP_X_MOZ'] ?? '') == 'prefetch'){
 
-		if (! $GLOBALS['cfg']['allow_precache']){
+		if (empty($GLOBALS['cfg']['allow_precache'])){
 			error_403();
 		}
 	}

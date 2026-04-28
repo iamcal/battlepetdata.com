@@ -135,7 +135,7 @@
 			return null;
 		}
 
-		if ($user['deleted']){
+		if (!empty($user['deleted'])){
 			return null;
 		}
 
@@ -154,7 +154,7 @@
 
 		$row = db_single(db_fetch("SELECT id FROM users WHERE email='{$enc_email}' AND deleted=0"));
 
-		return $row['id'] ? 1 : 0;
+		return !empty($row['id']) ? 1 : 0;
 	}
 
 	#################################################################
@@ -164,7 +164,7 @@
 		$enc_username = AddSlashes($username);
 
 		$row = db_single(db_fetch("SELECT id FROM users WHERE username='{$enc_username}' AND deleted=0"));
-		return $row['id'] ? 1 : 0;
+		return !empty($row['id']) ? 1 : 0;
 	}
 
 	#################################################################
@@ -247,7 +247,7 @@
 
 	function users_assign_cluster_id(){
 
-		if ($GLOBALS['cfg']['db_enable_poormans_federation']){
+		if (!empty($GLOBALS['cfg']['db_enable_poormans_federation'])){
 			return 1;
 		}
 

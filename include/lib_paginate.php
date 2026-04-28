@@ -17,9 +17,9 @@
 		# save state
 		$old_vars = $smarty->get_template_vars();
 
-		$pagination = $params['pagination'] ? $params['pagination'] : $old_vars['pagination'];
-		
-		if ($pagination['page_count'] < 2){ return; }
+		$pagination = !empty($params['pagination']) ? $params['pagination'] : ($old_vars['pagination'] ?? array());
+
+		if (($pagination['page_count'] ?? 0) < 2){ return; }
 
 		paginate_calculate($pagination, $params);
 
@@ -27,12 +27,12 @@
 		$smarty->assign('params', $params);
 
 		$style = 'pretty';
-		if ($params['style']) $style = $params['style'];
+		if (!empty($params['style'])) $style = $params['style'];
 
 		$smarty->display("inc_pagination_{$style}.txt");
 
 		# are we adding next/prev shortcuts?
-		if ($GLOBALS['cfg']['pagination_keyboard_shortcuts'] || $GLOBALS['cfg']['pagination_touch_shortcuts']){
+		if (!empty($GLOBALS['cfg']['pagination_keyboard_shortcuts']) || !empty($GLOBALS['cfg']['pagination_touch_shortcuts'])){
 
 			if (!$GLOBALS['_paginate_done_shortcuts']){
 
@@ -45,7 +45,7 @@
 		$smarty->_tpl_vars = $old_vars;
 	}
 
-	$GLOBALS['smarty']->register_function('pagination', 'smarty_pagination_function');
+	$GLOBALS['smarty']->registerPlugin('function', 'pagination', 'smarty_pagination_function');
 
 
 	#################################################################
@@ -58,7 +58,7 @@
 		}
 	}
 
-	$GLOBALS['smarty']->register_function('pagination_footer', 'smarty_pagination_footer_function');
+	$GLOBALS['smarty']->registerPlugin('function', 'pagination_footer', 'smarty_pagination_footer_function');
 
 	#################################################################
 
@@ -77,6 +77,9 @@
 
 		$left_range = $range;
 		$right_range = $range;
+
+		$pagination['page'] = $pagination['page'] ?? 1;
+		$pagination['page_count'] = $pagination['page_count'] ?? 0;
 
 		if ($pagination['page'] < 2){
 			$left_range = 0;
@@ -112,7 +115,7 @@
 		}
 
 		$pagination['page_links'] = $pages;
-		
+
 		$pagination['next_url'] = paginate_make_url($pagination['page'] + 1, $params);
 		$pagination['prev_url'] = paginate_make_url($pagination['page'] - 1, $params);
 
@@ -128,15 +131,17 @@
 
 	function paginate_make_url($page, $params){
 
-		$uri = $_SERVER['REQUEST_URI'];
-		list($path, $qs) = explode('?', $uri, 2);
+		$uri = $_SERVER['REQUEST_URI'] ?? '';
+		$parts = explode('?', $uri, 2);
+		$path = $parts[0] ?? '';
+		$qs = $parts[1] ?? '';
 
 
 		#
 		# if page_param is specified, use get params
 		#
 
-		if ($params['page_param']){
+		if (!empty($params['page_param'])){
 
 			$args = array();
 			parse_str($qs, $args);
@@ -162,7 +167,7 @@
 		#
 
 		$pattern = '/page#';
-		if ($params['page_pattern']) $pattern = $params['page_pattern'];
+		if (!empty($params['page_pattern'])) $pattern = $params['page_pattern'];
 
 
 		#

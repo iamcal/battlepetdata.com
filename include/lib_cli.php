@@ -72,19 +72,19 @@
 		foreach ($_opts as $key => $stuff){
 
 			if (isset($spec[$key])){
-				$opts[$key] = ($spec[$key]['boolean']) ? true : $stuff;
+				$opts[$key] = (!empty($spec[$key]['boolean'])) ? true : $stuff;
 			}
 
 			else if (isset($flags[$key])){
 
 				$name = $flags[$key];
-				$opts[$name] = ($spec[$name]['boolean']) ? true : $stuff;
+				$opts[$name] = (!empty($spec[$name]['boolean'])) ? true : $stuff;
 			}
 		}
 
 		foreach ($spec as $key => $details){
 
-			if ((! isset($opts[$key])) && (! $details['required'])){
+			if ((! isset($opts[$key])) && (empty($details['required']))){
 				continue;
 			}
 

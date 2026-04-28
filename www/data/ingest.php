@@ -23,11 +23,14 @@
 		$filename_enc = AddSlashes($filename);
 		db_write("DELETE FROM pets_data WHERE source='{$filename_enc}'");
 
-		foreach ($BattleDexDB['pets'] as $k => $v){
+		foreach (($BattleDexDB['pets'] ?? array()) as $k => $v){
 
 			foreach ($v as $k2 => $v2){
 
-				list($a,$b,$c) = explode('_', $k2);
+				$parts = explode('_', $k2);
+				$a = $parts[0] ?? 0;
+				$b = $parts[1] ?? 0;
+				$c = $parts[2] ?? 0;
 
 				db_insert('pets_data', array(
 					'source'	=> $filename,

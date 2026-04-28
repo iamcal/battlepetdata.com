@@ -6,7 +6,7 @@
 
 		$headers = array();
 
-		if (is_array($args['headers'])){
+		if (isset($args['headers']) && is_array($args['headers'])){
 
 			$headers = $args['headers'];
 		}
@@ -16,17 +16,17 @@
 		# set up the from address
 		#
 
-		if ($args['from_name'] && $args['from_email']){
+		if (!empty($args['from_name']) && !empty($args['from_email'])){
 
 			$from_email = $args['from_email'];
 			$from_name = $args['from_name'];
 
-		}else if ($args['from_email']){
+		}else if (!empty($args['from_email'])){
 
-			$from_email = $args[from_email];
-			$from_name = $args[from_email];
+			$from_email = $args['from_email'];
+			$from_name = $args['from_email'];
 
-		}else if ($args['from_name']){
+		}else if (!empty($args['from_name'])){
 
 			$from_email = $GLOBALS['cfg']['email_from_email'];
 			$from_name = $args['from_name'];
@@ -43,15 +43,15 @@
 		# other headers
 		#
 
-		if (!$headers['To']){
-			$headers['To'] = $args['to_email'];
+		if (empty($headers['To'])){
+			$headers['To'] = $args['to_email'] ?? '';
 		}
 
-		if (!$headers['Reply-To']){
+		if (empty($headers['Reply-To'])){
 			$headers['Reply-To'] = $from_email;
 		}
 
-		if (!$headers['Content-Type']){
+		if (empty($headers['Content-Type'])){
 
 			$headers['Content-Type'] = 'text/plain; charset=utf-8';
 		}
@@ -74,7 +74,7 @@
 
 		unset($headers['To']);
 
-		mail($args['to_email'], $subject, $message, email_format_headers($headers), $GLOBALS['cfg']['auto_email_args']);
+		mail($args['to_email'] ?? '', $subject, $message, email_format_headers($headers), $GLOBALS['cfg']['auto_email_args']);
 	}
 
 	#########################################################################################

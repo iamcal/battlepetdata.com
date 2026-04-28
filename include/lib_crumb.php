@@ -44,7 +44,9 @@
 
 	function crumb_validate($crumb, $key, $ttl=0, $target=''){
 
-		list($time, $hash) = explode('-', $crumb);
+		$parts = explode('-', $crumb);
+		$time = $parts[0] ?? '';
+		$hash = $parts[1] ?? '';
 
 		if ($ttl){
 			$then = $time + $ttl;
@@ -86,24 +88,24 @@
 	function crumb_get_base($key, $target=''){
 
 		if (! $target){
-			$target = $GLOBALS['_SERVER']['SCRIPT_NAME'];
+			$target = $GLOBALS['_SERVER']['SCRIPT_NAME'] ?? '';
 		}
 
 		# basic browser stuff
 
 		$data = array(
 			$key,
-			$GLOBALS['_SERVER']['HTTP_USER_AGENT'],
+			$GLOBALS['_SERVER']['HTTP_USER_AGENT'] ?? '',
 			$target,
-			$GLOBALS['_SERVER']['REMOTE_ADDR'],	# check if mobile?
+			$GLOBALS['_SERVER']['REMOTE_ADDR'] ?? '',	# check if mobile?
 		);
 
 		# if they're signed in, use their account
 
-		if ($GLOBALS['cfg']['user']['id']){
+		if (!empty($GLOBALS['cfg']['user']['id'])){
 
 			$data[] = $GLOBALS['cfg']['user']['id'];
-			$data[] = md5($GLOBALS['cfg']['user']['conf_code']);
+			$data[] = md5($GLOBALS['cfg']['user']['conf_code'] ?? '');
 		}
 
 		# this is a nice idea but likely to cause more pain than it's

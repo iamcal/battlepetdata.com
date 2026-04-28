@@ -12,6 +12,8 @@
 
 	$GLOBALS['smarty']->assign('cfg', $GLOBALS['cfg']);
 
+	$GLOBALS['smarty']->registerPlugin('modifier', 'intval', 'intval');
+
 	#######################################################################################
 
 	function smarty_timings(){
@@ -25,16 +27,21 @@
 		$GLOBALS['timing_keys']['smarty_comp'] = 'Templates Compiled';
 
 		foreach ($GLOBALS['timing_keys'] as $k => $v){
-			$c = intval($GLOBALS['timings']["{$k}_count"]);
-			$t = intval($GLOBALS['timings']["{$k}_time"]);
+			$c = intval($GLOBALS['timings']["{$k}_count"] ?? 0);
+			$t = intval($GLOBALS['timings']["{$k}_time"] ?? 0);
 			echo "<tr><td>$v</td><td class=\"tar\">$c</td><td class=\"tar\">$t ms</td></tr>\n";
 		}
 
+		$t_init_end = $GLOBALS['timings']['init_end'] ?? 0;
+		$t_exec_start = $GLOBALS['timings']['execution_start'] ?? 0;
+		$t_smarty_start = $GLOBALS['timings']['smarty_start_output'] ?? 0;
+		$t_smarty_out = $GLOBALS['timings']['smarty_timings_out'] ?? 0;
+
 		$map2 = array(
-			array("Startup &amp; Libraries", $GLOBALS['timings']['init_end'] - $GLOBALS['timings']['execution_start']),
-			array("Page Execution", $GLOBALS['timings']['smarty_start_output'] - $GLOBALS['timings']['init_end']),
-			array("Smarty Output", $GLOBALS['timings']['smarty_timings_out'] - $GLOBALS['timings']['smarty_start_output']),
-			array("<b>Total</b>", $GLOBALS['timings']['smarty_timings_out'] - $GLOBALS['timings']['execution_start']),
+			array("Startup &amp; Libraries", $t_init_end - $t_exec_start),
+			array("Page Execution", $t_smarty_start - $t_init_end),
+			array("Smarty Output", $t_smarty_out - $t_smarty_start),
+			array("<b>Total</b>", $t_smarty_out - $t_exec_start),
 		);
 
 		foreach ($map2 as $a){
@@ -45,6 +52,6 @@
 		echo "</div>\n";
 	}
 
-	$GLOBALS['smarty']->register_function('timings', 'smarty_timings');
+	$GLOBALS['smarty']->registerPlugin('function', 'timings', 'smarty_timings');
 
 	#######################################################################################

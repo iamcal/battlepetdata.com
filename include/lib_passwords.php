@@ -62,13 +62,13 @@
 		# then verify & promote it.
 		#
 
-		$is_bcrypt = substr($user['password'], 0, 4) == '$2a$';
+		$is_bcrypt = substr($user['password'] ?? '', 0, 4) == '$2a$';
 
 		if ($GLOBALS['cfg']['passwords_use_bcrypt'] && $GLOBALS['cfg']['passwords_allow_promotion'] && !$is_bcrypt){
 
 			$test = hash_hmac("sha256", $password, $GLOBALS['cfg']['crypto_password_secret']);
 
-			$is_ok = $test == $user['password'];
+			$is_ok = $test == ($user['password'] ?? '');
 
 			if ($is_ok){
 
@@ -86,7 +86,7 @@
 		# simple case
 		#
 
-		return passwords_validate_password($password, $user['password']);
+		return passwords_validate_password($password, $user['password'] ?? '');
 	}
 
 	#################################################################

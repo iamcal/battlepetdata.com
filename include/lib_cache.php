@@ -102,7 +102,7 @@
 
 		if (features_is_enabled("cache_prefixes")){
 
-			if ($prefix = $GLOBALS['cfg']['cache_prefix']){
+			if ($prefix = ($GLOBALS['cfg']['cache_prefix'] ?? '')){
 				$key = "{$prefix}_{$key}";
 			}
 		}

@@ -47,10 +47,10 @@
 <table>
 {foreach from=$stats.levels_all.levels item='row'}
 	<tr>
-		<td style="padding-right: 8px; text-align: right">{$row.level}</td>
-		<td><div style="width: {$row.w}px; height: 20px; background-color: #666"></div></td>
-		<td style="padding-right: 16px; padding-left: 8px; text-align: right">{$row.num}</td>
-		<td style="text-align: right">{$row.per}%</td>
+		<td style="padding-right: 8px; text-align: right">{$row.level|default:''}</td>
+		<td><div style="width: {$row.w|default:0}px; height: 20px; background-color: #666"></div></td>
+		<td style="padding-right: 16px; padding-left: 8px; text-align: right">{$row.num|default:0}</td>
+		<td style="text-align: right">{$row.per|default:0}%</td>
 	</tr>
 {/foreach}
 </table>
@@ -61,22 +61,22 @@
 {foreach from=$stats.levels_primary item='prow'}
 	<tr>
 		<td colspan="4" style="padding-top: 1em">
-			<img src="https://cdn.warcraftpets.com/images/pets/small/{$prow.pet.image}" width="20" height="20">
+			<img src="https://cdn.warcraftpets.com/images/pets/small/{$prow.pet.image|default:''}" width="20" height="20">
 {if $prow.is_main}
-			{$prow.pet.name|escape} (Primary)
-{elseif $prow.pet.id==$pet.id}
-			{$prow.pet.name|escape} (Secondary)
+			{$prow.pet.name|default:''|escape} (Primary)
+{elseif ($prow.pet.id|default:0)==($pet.id|default:0)}
+			{$prow.pet.name|default:''|escape} (Secondary)
 {else}
-			<a href="./{$prow.pet.url}">{$prow.pet.name|escape}</a>
+			<a href="./{$prow.pet.url|default:''}">{$prow.pet.name|default:''|escape}</a>
 {/if}
 		</td>
 	</tr>
 {foreach from=$prow.levels item='row'}
 	<tr>
-		<td style="padding-right: 8px; text-align: right">{$row.level}</td>
-		<td><div style="width: {$row.w}px; height: 20px; background-color: #666"></div></td>
-		<td style="padding-right: 16px; padding-left: 8px; text-align: right">{$row.num}</td>
-		<td style="text-align: right">{$row.per}%</td>
+		<td style="padding-right: 8px; text-align: right">{$row.level|default:''}</td>
+		<td><div style="width: {$row.w|default:0}px; height: 20px; background-color: #666"></div></td>
+		<td style="padding-right: 16px; padding-left: 8px; text-align: right">{$row.num|default:0}</td>
+		<td style="text-align: right">{$row.per|default:0}%</td>
 	</tr>
 {/foreach}
 {/foreach}
@@ -102,14 +102,14 @@
 	</tr>
 {foreach from=$stats.seconds item='row'}
 	<tr>
-		<td><img src="https://cdn.warcraftpets.com/images/pets/small/{$row.image}" width="20" height="20"></td>
-{if $row.id==$pet.id}
-		<td>{$row.name|escape}</td>
+		<td><img src="https://cdn.warcraftpets.com/images/pets/small/{$row.image|default:''}" width="20" height="20"></td>
+{if ($row.id|default:0)==($pet.id|default:0)}
+		<td>{$row.name|default:''|escape}</td>
 {else}
-		<td><a href="./{$row.url}">{$row.name|escape}</a>
+		<td><a href="./{$row.url|default:''}">{$row.name|default:''|escape}</a>
 {/if}
-		<td style="text-align: right">{$row.num}</td>
-		<td style="text-align: right">{$row.simple_levels}</td>
+		<td style="text-align: right">{$row.num|default:0}</td>
+		<td style="text-align: right">{$row.simple_levels|default:''}</td>
 	</tr>
 {foreachelse}
 	<tr>
@@ -133,14 +133,14 @@
 	</tr>
 {foreach from=$stats.seconds_to item='row'}
 	<tr>
-		<td><img src="https://cdn.warcraftpets.com/images/pets/small/{$row.image}" width="20" height="20"></td>
-{if $row.id==$pet.id}
-		<td>{$row.name|escape}</td>
+		<td><img src="https://cdn.warcraftpets.com/images/pets/small/{$row.image|default:''}" width="20" height="20"></td>
+{if ($row.id|default:0)==($pet.id|default:0)}
+		<td>{$row.name|default:''|escape}</td>
 {else}
-		<td><a href="./{$row.url}">{$row.name|escape}</a>
+		<td><a href="./{$row.url|default:''}">{$row.name|default:''|escape}</a>
 {/if}
-		<td style="text-align: right">{$row.num}</td>
-		<td style="text-align: right">{$row.simple_levels}</td>
+		<td style="text-align: right">{$row.num|default:0}</td>
+		<td style="text-align: right">{$row.simple_levels|default:''}</td>
 	</tr>
 {foreachelse}
 	<tr>
