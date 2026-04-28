@@ -13,6 +13,7 @@
 	$GLOBALS['smarty']->assign('cfg', $GLOBALS['cfg']);
 
 	$GLOBALS['smarty']->registerPlugin('modifier', 'intval', 'intval');
+	$GLOBALS['smarty']->registerPlugin('modifier', 'header', 'header');
 
 	#######################################################################################
 
