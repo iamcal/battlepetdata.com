@@ -119,7 +119,8 @@ CREATE TABLE `pets_defs` (
   KEY `Description` (`keywords`(255)),
   KEY `LootID` (`loot_id`),
   KEY `is_activated` (`is_activated`,`name`),
-  KEY `is_activated_2` (`is_activated`,`is_collectable`)
+  KEY `is_activated_2` (`is_activated`,`is_collectable`),
+  KEY `species_id` (`species_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1003 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
