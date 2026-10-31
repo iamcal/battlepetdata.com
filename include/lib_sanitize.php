@@ -253,7 +253,8 @@
 			case SANITIZE_EXTENSION_PHP:
 				if ($from == 'ISO-8859-1'){
 
-					return utf8_encode($input);
+					# utf8_encode() is deprecated; this is the same mapping, each byte as its Latin-1 character
+					return preg_replace_callback('![\x80-\xFF]!', function($m){ $c = ord($m[0]); return chr(0xC0 | ($c >> 6)).chr(0x80 | ($c & 0x3F)); }, $input);
 				}
 
 				if ($from == 'UTF-8'){

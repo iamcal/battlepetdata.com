@@ -8,7 +8,7 @@
 
 	# Also: there is running code at the bottom of this file
 
-	error_reporting((E_ALL | E_STRICT) ^ E_NOTICE);
+	error_reporting(E_ALL ^ E_NOTICE);
 
 	putenv('TZ=PST8PDT');
 	date_default_timezone_set('America/Los_Angeles');
@@ -142,7 +142,7 @@
 
 	if (isset($cfg['check_notices']) && $cfg['check_notices']){
 		set_error_handler('handle_error_notices', E_NOTICE);
-		error_reporting(E_ALL | E_STRICT);
+		error_reporting(E_ALL);
 	}
 
 	function handle_error_notices($errno, $errstr){
